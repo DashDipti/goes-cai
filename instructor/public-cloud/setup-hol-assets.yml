@@ -1,0 +1,398 @@
+---
+
+- name: Configure Hands on Lab Assets
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - env
+  tasks:
+
+############# Environment Discovery & Validation #############
+        
+    - name: Gather details about the CDP environment
+      tags:
+        - always
+      block:
+        # Find details about the environment
+        - name: Set environment name from either pre-existing environment or Terraform outputs
+          ansible.builtin.set_fact:
+            cdp_environment_name: "{{ cdp_env if cdp_env is defined else lookup('cloud.terraform.tf_output', 'cdp_environment_name', project_path=[playbook_dir,'tf-cdp-env'] | path_join) }}"
+
+        - name: Query for the CDP Public Cloud Environment
+          cloudera.cloud.env_info:
+            name: "{{ cdp_environment_name }}"
+          register: __env
+
+        - name: Verify that environment is in running state
+          ansible.builtin.assert:
+            that:
+              - __env.environments | length == 1
+              - __env.environments[0].status == 'AVAILABLE'
+            fail_msg: "Environment '{{ cdp_environment_name }}' not found or not in Available state"
+
+        # Find details about datalake
+        - name: Query for the CDP Public Cloud Datalake
+          cloudera.cloud.datalake_info:
+            environment: "{{ cdp_environment_name }}"
+          register: __dl
+
+        - name: Assert existence of the CDP Public Cloud Datalake
+          ansible.builtin.assert:
+            that:
+              - __dl.datalakes | length == 1
+              - __dl.datalakes[0].status == "RUNNING"
+            fail_msg: "CDP Public Cloud target Datalake either is missing or invalid: {{ cdp_environment_name }}"
+            quiet: yes        
+
+        - name: Gather details about the executing user
+          cloudera.cloud.iam_user_info:
+            current_user: yes
+          register: __user
+
+############# Keycloak Workshop user accounts #############
+
+    - name: Create Keycloak users and Reset Workload Passwords
+      tags:
+        - keycloak
+      when: sync_keycloak_users
+      block:
+        - name: Set fact for Users
+          ansible.builtin.set_fact:
+            user_list: "{{ (user_list | default([])) + [{ 'username': username_prefix ~ ('%03d' | format(item)|string), 'password': common_password }] }}"
+          loop: "{{ range(1, (num_users | int) + 1) }}"
+
+        - name: Gather details about users
+          cloudera.cloud.iam_user_info:
+            name: "{{ user_list | map(attribute='username') | list }}"
+          register: __cdp_user_info_prelogin
+
+        # Ensure any missing keycloak users are created
+        - name: Attempt to create missing users via Keycloak
+          goes.keycloak.keycloak_login:
+            login_url: "{{ keycloak_url }}"
+            username: "{{ item.username }}"
+            password: "{{ keycloak_password }}"
+            debug: true
+          loop: "{{ user_list }}"
+          when: item.username not in (__cdp_user_info_prelogin.users | map(attribute='workloadUsername') | list)
+
+        - name: Gather details about users again
+          cloudera.cloud.iam_user_info:
+            name: "{{ user_list | map(attribute='username') | list }}"
+          register: __cdp_user_info_postlogin
+
+        - name: Reset user password using CDP CLI
+          ansible.builtin.command:
+            cmd: >
+              cdp iam set-workload-password 
+              --actor-crn "{{ __cdp_user_info_postlogin.users | selectattr('workloadUsername', 'equalto', item.username) | map(attribute='crn') | first }}"
+              --password "{{ item.password }}"
+          loop: "{{ user_list }}"
+          when: item.username in (__cdp_user_info_postlogin.users | map(attribute='workloadUsername') | list)
+          no_log: true  # Prevent password from being logged
+
+        - name: Syncronize the CDP Users and Groups to {{ cdp_environment_name }}
+          cloudera.cloud.env_user_sync:
+            name: "{{ cdp_environment_name }}"
+
+############# Cloudera AI Configuration #############
+
+    - name: Cloudera AI Configuration
+      tags:
+        - cai
+        - helper_jobs
+        - permissions
+        - app_restart
+        - agent_studio        
+      block:
+
+# Find details about CAI service
+        - name: Gather details for the CAI Workspace
+          cloudera.cloud.ml_info:
+            name: "{{ ml.workspace.name }}"
+            env: "{{ cdp_environment_name }}"
+          register: __cml_ds
+
+        - name: Confirm the status of the CAI Workspace
+          ansible.builtin.assert:
+            that:
+              - __cml_ds.workspaces | length == 1
+              - __cml_ds.workspaces | map(attribute='instanceStatus') | first in ['installation:finished', 'modify:finished']
+            fail_msg: "CAI Workspace, {{ ml.workspace.name }}, not enabled for Environment, {{ cdp_environment_name }}"
+            quiet: yes
+
+        - name: Assert that the Cloudera AI workspace key variable is set
+          ansible.builtin.assert:
+            that:
+              - ml_workspace_api_key is defined
+            fail_msg: "The variable 'ml_workspace_api_key' is not set. Please set it to the API key for the Cloudera AI workspace."
+            quiet: yes        
+
+        - name: Set fact for the CAI Workspace API endpoint
+          ansible.builtin.set_fact:
+            cml_workspace_api: "{{ __cml_ds.workspaces | map(attribute='instanceUrl') | first }}"
+
+        - name: Print the CAI workspace API
+          ansible.builtin.debug:
+            var: cml_workspace_api
+
+# Create Cloudera AI Projects
+        - name: Provision the required number of CAI projects
+          cloudera.runtime.ml_project:
+            endpoint: "{{ cml_workspace_api }}"
+            api_key: "{{ ml_workspace_api_key }}"
+            name: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+            desc: "Agentic Studio HoL Project {{ __cai_proj_item + 1 }}"
+            runtime: ml_runtime
+            template: git
+            git:  "{{ ml.project.git_url }}"
+            git_branch: "{{ ml.project.git_branch | default(omit) }}"
+            visibility: "{{ ml.project.visibility }}" # need to add attendees as collaborators 
+            environment_variables:
+              OPENAI_API_KEY: "{{ llm_model_details[0].api_key }}"
+          register: __cml_project
+          loop_control:
+            loop_var: __cai_proj_item     
+          loop: "{{ range(0, ml.project.num_projects | int) }}"
+
+        - name: Configure CAI Helper Jobs
+          tags:
+            - cai
+            - helper_jobs
+            - permissions
+            - app_restart
+          block:
+    # CAI Jobs for i) User and Groups Permissions Job ii) Application Restart
+            - name: Create a admin project for helper jobs
+              cloudera.runtime.ml_project:
+                endpoint: "{{ cml_workspace_api }}"
+                api_key: "{{ ml_workspace_api_key }}"
+                name: "labadmin"
+                desc: "Administrator Project"
+                runtime: ml_runtime
+                template: blank
+                visibility: "{{ ml.project.visibility }}" # need to add attendees as collaborators 
+                environment_variables:
+                  PROJECT_NAME_PREFIX: "{{ ml.project.project_name_prefix }}"
+                  TEAM_NAME: "{{ ml.project.project_name_prefix }}"
+                  NUM_USERS: "{{ ml.project.num_projects | int }}"
+                  KEYCLOAK_CDP_GROUP: "{{ keycloak_group_name | default(omit) }}"
+                  LABUSERNAME_PREFIX: "{{ username_prefix | default('user') }}"
+              register: __cml_admin_project
+
+    # Configure and Launch Job to Assign Permissions to each project
+            - name: Discover the Standard edition JupyterLab Python 3.10 runtime
+              cloudera.runtime.ml_runtimes_info:
+                endpoint: "{{ cml_workspace_api }}"
+                api_key: "{{ ml_workspace_api_key }}"
+                edition: Standard
+                editor: "PBJ Workbench"
+                kernel: "Python 3.10"
+              register: __standard
+
+            - name: Discover the Spark 3.5.1 runtime addon
+              ansible.builtin.uri:
+                url: "{{ cml_workspace_api }}/api/v2/runtimeaddons"
+                headers:
+                  Authorization: "Bearer {{ ml_workspace_api_key }}"
+              register: __spark
+
+            - name: Permissions Job
+              tags:
+                - cai
+                - helper_jobs
+                - permissions
+              block:
+                # Known issue with ansible.builtin.uri and multipart/form-data binary uploads
+                - name: Upload the permissions script to admin project
+                  ansible.builtin.command: 'curl -X POST -H "Authorization: Bearer {{ ml_workspace_api_key }}" -H "Content-Type: multipart/form-data" -F "permission.py=@files/cai/permission.py" {{ cml_workspace_api }}/api/v2/projects/{{ __cml_admin_project.project.id }}/files'
+
+                - name: Configure the Permissions job on the Admin Project
+                  cloudera.runtime.ml_project_job:
+                    endpoint: "{{ cml_workspace_api }}"
+                    api_key: "{{ ml_workspace_api_key }}"
+                    project_name: "labadmin"
+                    name: Assign Permissions to Agent Lab projects
+                    script: "permission.py"
+                    runtime: "{{ job_runtime }}"
+                    cpu: 2
+                    memory: 8
+                  register: __permission_job
+                  vars:
+                    runtime_version: "{{ __standard.runtimes | map(attribute='full_version') | community.general.version_sort(reverse=True) | first }}"
+                    job_runtime: "{{ __standard.runtimes | selectattr('full_version', 'eq', runtime_version) | map(attribute='image_identifier') | first }}"
+
+                - name: Run the Permissions job
+                  cloudera.runtime.ml_project_job_run:
+                    endpoint: "{{ cml_workspace_api }}"
+                    api_key: "{{ ml_workspace_api_key }}"
+                    project_name: "labadmin"
+                    id: "{{ __permission_job.job.id }}"
+                    state: started
+                    wait: yes
+
+    # App Restart Job
+            - name: App Restart Job
+              tags:
+                - cai
+                - helper_jobs
+                - app_restart
+              block:
+                # Known issue with ansible.builtin.uri and multipart/form-data binary uploads
+                - name: Upload the app restart script to admin project
+                  ansible.builtin.command: 'curl -X POST -H "Authorization: Bearer {{ ml_workspace_api_key }}" -H "Content-Type: multipart/form-data" -F "app_restart.py=@files/cai/app_restart.py" {{ cml_workspace_api }}/api/v2/projects/{{ __cml_admin_project.project.id }}/files'
+
+                - name: Configure the App Restart job on the Admin Project
+                  cloudera.runtime.ml_project_job:
+                    endpoint: "{{ cml_workspace_api }}"
+                    api_key: "{{ ml_workspace_api_key }}"
+                    project_name: "labadmin"
+                    name: Restart Applications in Agent projects
+                    script: "app_restart.py"
+                    runtime: "{{ job_runtime }}"
+                    cpu: 2
+                    memory: 8
+                  register: __app_restart_job
+                  vars:
+                    runtime_version: "{{ __standard.runtimes | map(attribute='full_version') | community.general.version_sort(reverse=True) | first }}"
+                    job_runtime: "{{ __standard.runtimes | selectattr('full_version', 'eq', runtime_version) | map(attribute='image_identifier') | first }}"
+
+    # Configure and Launch Job to install Python Package Dependencies in each project
+
+        - name: Configure CAI Package Dependencies Bootstrap Jobs
+          tags:
+            - cai
+            - dependencies
+          block:
+            - name: Discover the Standard edition JupyterLab Python 3.10 runtime
+              cloudera.runtime.ml_runtimes_info:
+                endpoint: "{{ cml_workspace_api }}"
+                api_key: "{{ ml_workspace_api_key }}"
+                edition: Standard
+                editor: "PBJ Workbench"
+                kernel: "Python 3.10"
+              register: __standard
+
+            - name: Configure the Bootstrap job for each project
+              cloudera.runtime.ml_project_job:
+                endpoint: "{{ cml_workspace_api }}"
+                api_key: "{{ ml_workspace_api_key }}"
+                project_name: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+                name: Bootstrap Python Dependencies
+                script: "bootstrap.py"
+                runtime: "{{ job_runtime }}"
+                cpu: 2
+                memory: 8
+              register: __bootstrap_job
+              vars:
+                runtime_version: "{{ __standard.runtimes | map(attribute='full_version') | community.general.version_sort(reverse=True) | first }}"
+                job_runtime: "{{ __standard.runtimes | selectattr('full_version', 'eq', runtime_version) | map(attribute='image_identifier') | first }}"
+              loop_control:
+                loop_var: __cai_proj_item     
+              loop: "{{ range(0, ml.project.num_projects | int) }}"
+
+            - name: Run the Bootstrap job
+              cloudera.runtime.ml_project_job_run:
+                endpoint: "{{ cml_workspace_api }}"
+                api_key: "{{ ml_workspace_api_key }}"
+                project_name: "{{ __cai_job_item.invocation.module_args.project_name }}"
+                id: "{{ __cai_job_item.job.id }}"
+                state: started
+                wait: yes
+              loop_control:
+                loop_var: __cai_job_item     
+              loop: "{{ __bootstrap_job.results }}"
+              async: 3600  # 1 hour timeout
+              poll: 0      # Don't wait for completion
+              register: _bootstrap_async_results
+
+            - name: Wait for all bootstrap jobs to complete
+              ansible.builtin.async_status:
+                jid: "{{ async_result_item.ansible_job_id }}"
+              register: job_result
+              until: job_result.finished
+              retries: 60
+              delay: 30
+              loop_control:
+                loop_var: async_result_item     
+              loop: "{{ _bootstrap_async_results.results }}"
+
+# AI Studios Creation
+        - name: Provision Agent Studio AI Studio
+          when: ml.ai_studios.agent_studio is defined
+          tags:
+            - agent_studio
+          block:
+            - name: Start Setup of Studio
+              ansible.builtin.include_role:
+                name: cloudera.runtime.cai_ai_studios
+              vars:
+                cai_ai_studio_async_setup: true
+                ai_studio: "agent_studio"
+                cai_project: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+                cai_workspace_api: "{{ cml_workspace_api }}"
+                cai_workbench_api_key: "{{ ml_workspace_api_key }}"            
+                cai_user: "{{ __user.users | map(attribute='workloadUsername') | first }}"
+                cai_runtime_image_name: "{{ ml.ai_studios.agent_studio.runtime_image_name }}" 
+                cai_environment_variables: "{{ ml.ai_studios.agent_studio.cai_environment_variables }}"
+              loop_control:
+                loop_var: __cai_proj_item     
+              loop: "{{ range(0, ml.project.num_projects | int) }}"
+
+            # - name: Wait for Studio Setup to Complete
+            #   ansible.builtin.include_role:
+            #     name: cloudera.runtime.cai_ai_studios
+            #   vars:
+            #     cai_ai_studio_async_setup: false
+            #     ai_studio: "agent_studio"
+            #     cai_project: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+            #     cai_workspace_api: "{{ cml_workspace_api }}"
+            #     cai_workbench_api_key: "{{ ml_workspace_api_key }}"            
+            #     cai_user: "{{ __user.users | map(attribute='workloadUsername') | first }}"
+            #     cai_runtime_image_name: "{{ ml.ai_studios.agent_studio.runtime_image_name }}" 
+            #     cai_environment_variables: "{{ ml.ai_studios.agent_studio.cai_environment_variables }}"
+            #   loop_control:
+            #     loop_var: __cai_proj_item     
+            #   loop: "{{ range(0, ml.project.num_projects | int) }}"
+
+            - name: Pause until Agent Studio is fully available
+              ansible.builtin.pause:
+                prompt: "Waiting for Agent Studio to become fully available. Press ENTER to continue if you've verified it's ready, or wait for the timeout."
+                seconds: 180  # 3 minutes timeout
+
+# Register LLM Model in each Agent Studio AI Studio
+        - name: Register LLM model for each Agent Studio AI Studio
+          when: ml.ai_studios.agent_studio is defined
+          tags:
+            - agent_studio
+          ansible.builtin.include_role:
+            name: cloudera.runtime.cai_register_model
+          vars:      
+            ai_studio: "agent_studio"
+            cai_project: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+            cai_workspace_api: "{{ cml_workspace_api }}"
+            cai_workbench_api_key: "{{ ml_workspace_api_key }}"            
+            cai_user: "{{ __user.users | map(attribute='workloadUsername') | first }}"
+            llm_model_details: "{{ llm_model_details | default([]) }}"
+          loop_control:
+            loop_var: __cai_proj_item     
+          loop: "{{ range(0, ml.project.num_projects | int) }}"
+
+# TODO: Create Tool Templates for Agent Studio AI Studio
+#         # - name: Create Tool Templates for each Agent Studio AI Studio
+#         #   when: ml.ai_studios.agent_studio is defined
+#         #   tags:
+#         #     - agent_studio
+#         #   ansible.builtin.include_role:
+#         #     name: cai_create_tool_templates
+#         #   vars:    
+#         #     ai_studio: "agent_studio"
+#         #     cai_project: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+#         #     cai_workspace_api: "{{ cml_workspace_api }}"
+#         #     cai_workbench_api_key: "{{ ml_workspace_api_key }}"            
+#         #     cai_user: "{{ __user.users | map(attribute='workloadUsername') | first }}"
+#         #     tool_templates: "{{ tool_templates | default([]) }}"
+#         #   loop_control:
+#         #     loop_var: __cai_proj_item     
+#         #   loop: "{{ range(0, ml.project.num_projects | int) }}"

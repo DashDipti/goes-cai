@@ -1,0 +1,157 @@
+---
+# **** EDIT PLACEHOLDERS IN THE SECTION AS REQUIRED ***
+# Short prefix to append to all resources created
+prefix: "<ENTER_VALUE>"                     # str; keep short 4-7 characters
+owner_email: "<ENTER_VALUE>"           # email address of owner e.g. ()
+
+# Your Cloudera AI API key (known only after workspace is created)
+# Only used in the setup-hol-assets.yml playbook; ignored in other playbooks
+ml_workspace_api_key: "<ENTER_VALUE>"
+
+# Number of Cloudera AI projects to create
+num_projects: 5
+
+# Enter LLM model details to register with AI Studio
+llm_model_details:
+  - model_name: "aistudio-llm-model"
+    model_type: "OPENAI"
+    provider_model: "gpt-4o-mini"
+    api_key: "sk-proj-<ENTER_VALUE>"
+    default: true
+
+# Optionally specify a pre-existing Keycloak group
+# keycloak_group_name: "<ENTER_VALUE>"
+
+# If using an existing Keycloak group and want to ensure workload password are set, specify it here
+sync_keycloak_users: false # Set to true to log in with existing Keycloak users to create corresponding Cloudera users
+# Uncomment below for Keycloak configuration
+# keycloak_url: "<ENTER_KEYCLOAK_CDP_CLIENT_URL>" # e.g. "https://login.cdpworkshops.cloudera.com/auth/realms/sandbox/protocol/saml/clients/cdp-sso"
+# keycloak_password: "<ENTER_KEYCLOAK_USER_PASSWORD>"
+# username_prefix: "user"
+# num_users: "{{ num_projects }}"
+# common_password: "{{ keycloak_password }}" # Workload Password to use for all users
+
+# Cloudera on cloud Environment Deployment
+# NOTE: Uncomment and set below to use existing CDP Public Cloud Environment
+# cdp_env:   "<ENTER_VALUE>" # str; e.g. "cldr1-cdp-env"
+
+deployment_template: public  
+datalake_scale: "LIGHT_DUTY"
+
+cdp_control_plane_region: 'us-west-1' # Used for role & resource role permissions. Change if using different control plane
+
+# Data Services to enable
+enable_cml: yes
+
+# **** END OF SECTION REQUIRING EDITS ***
+infra_type: "aws"
+
+# Tagging
+tags:
+  owner: "{{ owner_email }}"
+  project: "{{ prefix }} - Data Lifecycle HoL"
+  deploy-tool: Foundry
+
+
+# Network connectivity
+ingress_extra_cidrs_and_ports:
+  cidrs: "{{ lookup('cloudera.infra.global_vpn', descriptions=True) | selectattr('description', 'search', 'Prisma') | map(attribute='cidr') | list }}"  
+  ports: [22, 443]      # Cloud-only access
+
+# CDP Groups and roles
+cdp_instructor_group: 
+  name: "{{ prefix }}-instructor"
+  create_group: yes # For Terraform
+  add_to_idbroker: yes
+  sync_on_login: no
+  roles:
+    - PowerUser
+  resource_roles:
+    - EnvironmentAdmin
+    - DEAdmin
+    - DFAdmin
+    - DFFlowAdmin
+    - DFFlowDeveloper
+    - DWAdmin
+    - MLAdmin
+    - ODAdmin
+    - EnvironmentUser
+    - DEUser
+    - DWUser
+    - MLUser
+    - ODUser
+    - Owner
+
+cdp_attendee_group:
+  name: "{{ keycloak_group_name | default(prefix ~ '-attendee') }}" # NOTE: This can be a pre-existing group aligning with the Keycloak realm
+  create_group: "{{ 'false' if keycloak_group_name is defined else 'true' }}" # For Terraform
+  add_to_idbroker: yes
+  sync_on_login: no
+  roles:
+    - DFCatalogAdmin
+    - DFCatalogViewer
+    - EnvironmentUser
+  resource_roles:
+    - DataSteward
+    - DEUser
+    - DFFlowAdmin
+    - DFFlowDeveloper
+    - DFFlowUser
+    - DWUser
+    - EnvironmentUser
+    - MLBusinessUser
+    - MLUser
+    - MLViewer
+    - Owner
+
+###########################
+# Machine Learning Workspace
+###########################
+# Define the instance types used in ML workspace & CDE service
+instance_types:
+  cml_default:
+    aws: m5.12xlarge
+    azure: Standard_DS5_v2
+  cml_gpu:
+    aws: p3.8xlarge
+    azure: Standard_NC6s_v2
+  cde_default:
+    aws: 
+      name: m7g.4xlarge
+      cpu: 16
+      mem: 64
+    azure: 
+      name: Standard_D16s_v4
+
+# ML workspace definition
+ml:
+  workspace:
+    name: "{{ prefix }}-default-ml"
+    tls: yes
+    governance: yes
+    metrics: yes
+    monitoring: yes
+    private_cluster: no
+    public_loadbalancer: yes
+    instance_groups:
+      - name: cpu_settings
+        instanceCount: "{{ [num_projects, 2 ] | max }}"
+        instanceType: "{{ instance_types.cml_default[infra_type | lower] | default(omit) }}"
+        instanceTier: "ON_DEMAND"
+        autoscaling:
+          minInstances: "{{ [num_projects, 2 ] | max }}"
+          maxInstances: "{{ [(num_projects * 2), 5] | max }}"
+          enabled: yes
+        rootVolume:
+          size: 300
+  project:
+    project_name_prefix: "{{ prefix }}-project"
+    num_projects: "{{ num_projects | int }}"
+    git_url: "https://github.com/SuperEllipse/AirAware.git"
+    git_branch: "Lab"
+    visibility: private # need to add attendees as collaborators
+  ai_studios:
+    agent_studio:
+      runtime_image_name: "docker.repository.cloudera.com/cloudera/cdsw/ml-runtime-pbj-workbench-python3.10-standard:2025.09.1-b5"
+      cai_environment_variables:
+        AGENT_STUDIO_NUM_WORKFLOW_RUNNERS: 5

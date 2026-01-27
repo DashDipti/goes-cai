@@ -1,0 +1,29 @@
+---
+
+version: 3
+
+images:
+  base_image:
+    name: docker-sandbox.infra.cloudera.com/goes/goes-runner-aws:latest
+
+dependencies:
+  system:
+    - sshpass
+  galaxy:
+    collections:
+      - name: https://github.com/cloudera-labs/cloudera.cloud
+        type: git
+        version: devel
+      - name: https://github.infra.cloudera.com/GOES/cloudera.runtime.git
+        type: git
+        version: devel
+      - name: amazon.aws
+        version: 9.4.0
+      - name: https://github.infra.cloudera.com/GOES/goes.keycloak.git
+        type: git
+        version: main        
+
+additional_build_steps:
+  append_final:
+    - RUN pip install cdpcli-beta --upgrade
+    - RUN pip install git+https://github.com/cloudera-labs/cdpy@devel#egg=cdpy --upgrade

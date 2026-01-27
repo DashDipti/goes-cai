@@ -1,0 +1,132 @@
+---
+
+- name: Set up CDP Public Cloud Environment and Datalake
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - env
+  vars:
+    # For the HoL CDP group
+    # ...CRN for resource roles are CDP control plane dependent; below attempts to handle this
+    __cdp_control_planes:
+      us-west-1:  "crn:altus:iam:us-west-1:altus"
+      eu-1:       "crn:altus:iam:eu-1:altus"
+      ap-1:       "crn:altus:iam:ap-1:altus"  
+    __cdp_control_plane_region:         "{{ cdp_control_plane_region | default('us-west-1') }}"
+    __cdp_control_plane_crn:            "{{ __cdp_control_planes[__cdp_control_plane_region] }}"
+    __cdp_iam_role_suffix:           "role"
+    __cdp_iam_resource_suffix:       "resourceRole"
+  tasks:
+
+############# CDP Environment and Datalake (via Terraform Quickstarts) #############
+
+    - name: Setup infra and environment
+      tags:
+        - platform
+      block:
+
+        - name: Create TF input variables file for TF quickstart module
+          ansible.builtin.template:
+            src: cdp_env_terraform.tfvars.j2
+            dest: "tf-cdp-env/terraform.tfvars"
+
+        - name: Check for existing Terraform state file
+          ansible.builtin.stat:
+            path: tf-cdp-env/terraform.tfstate
+          register: __tf_state
+
+        - name: Terraform apply to set up the Cloud infrastructure
+          cloud.terraform.terraform: 
+            project_path: "tf-cdp-env/"
+            state: "present"
+            force_init: "{{ not __tf_state.stat.exists }}"
+            provider_upgrade: true
+
+    - name: Fetch Terraform outputs for infrastructure setup
+      ansible.builtin.set_fact:
+        tf_cdp_outputs: "{{ lookup('cloud.terraform.tf_output', project_path=[playbook_dir,'tf-cdp-env'] | path_join) }}"
+      tags:
+        - always
+
+############# CDP Group for HoL groups #############
+    - name: Setup access to environment
+      tags:
+        - access
+      block:
+        # Instructor Group
+        - name: Ensure Instructor Group has correct permissions
+          tags:
+            - instructor
+          block:
+            - name: Set fact for CDP Environment Role CRNs for Instructor Group
+              ansible.builtin.set_fact:
+                __cdp_hol_instructor_group_role_crns: "{{ __cdp_hol_instructor_group_role_crns | default([]) | union([role]) }}"
+              vars:
+                role: "{{ [__cdp_control_plane_crn, __cdp_iam_role_suffix, __cdp_hol_instructor_group_role_item] | join(':') }}"
+              loop_control:
+                loop_var: __cdp_hol_instructor_group_role_item
+              loop: "{{ cdp_instructor_group.roles }}"
+
+            - name: Set fact for CDP Resource Role assignments for Instructor Group
+              ansible.builtin.set_fact:
+                __cdp_hol_instructor_group_resource_role_assignments: "{{ __cdp_hol_instructor_group_resource_role_assignments | default([]) | union([resource_role_assignment]) }}"
+              vars:
+                resource_role_assignment:
+                  resource:  "{{ tf_cdp_outputs.cdp_environment_crn.value }}"
+                  role: "{{ [__cdp_control_plane_crn, __cdp_iam_resource_suffix, __cdp_hol_instructor_group_resource_role_item] | join(':') }}"
+              loop_control:
+                loop_var: __cdp_hol_instructor_group_resource_role_item
+              loop: "{{ cdp_instructor_group.resource_roles }}"
+
+            # We'll add the executing user to the instructor group
+            - name: Gather current user details
+              cloudera.cloud.iam_user_info:
+                current_user: yes
+              register: __current_user
+
+            - name: Ensure the CDP Instructor group is created with correct permissions
+              cloudera.cloud.iam_group:
+                name: "{{ cdp_instructor_group.name }}"
+                state: present
+                sync: "{{ cdp_instructor_group.sync_on_login }}"
+                roles: "{{ __cdp_hol_instructor_group_role_crns }}"
+                resource_roles: "{{ __cdp_hol_instructor_group_resource_role_assignments }}"
+                users: "{{ __current_user.users | map(attribute='crn') }}"
+
+        # Attendee Group
+        - name: Ensure Attendee Group has correct permissions
+          tags:
+            - attendee
+          block:
+            - name: Set fact for CDP Environment Role CRNs for Attendee Group
+              ansible.builtin.set_fact:
+                __cdp_hol_attendee_group_role_crns: "{{ __cdp_hol_attendee_group_role_crns | default([]) | union([role]) }}"
+              vars:
+                role: "{{ [__cdp_control_plane_crn, __cdp_iam_role_suffix, __cdp_hol_attendee_group_role_item] | join(':') }}"
+              loop_control:
+                loop_var: __cdp_hol_attendee_group_role_item
+              loop: "{{ cdp_attendee_group.roles }}"
+
+            - name: Set fact for CDP Resource Role assignments for Attendee Group
+              ansible.builtin.set_fact:
+                __cdp_hol_attendee_group_resource_role_assignments: "{{ __cdp_hol_attendee_group_resource_role_assignments | default([]) | union([resource_role_assignment]) }}"
+              vars:
+                resource_role_assignment:
+                  resource:  "{{ tf_cdp_outputs.cdp_environment_crn.value }}"
+                  role: "{{ [__cdp_control_plane_crn, __cdp_iam_resource_suffix, __cdp_hol_attendee_group_resource_role_item] | join(':') }}"
+              loop_control:
+                loop_var: __cdp_hol_attendee_group_resource_role_item
+              loop: "{{ cdp_attendee_group.resource_roles }}"
+
+            - name: Ensure the CDP Attendee group is created with correct permissions
+              cloudera.cloud.iam_group:
+                name: "{{ cdp_attendee_group.name }}"
+                state: present
+                sync: "{{ cdp_attendee_group.sync_on_login }}"
+                roles: "{{ __cdp_hol_attendee_group_role_crns }}"
+                resource_roles: "{{ __cdp_hol_attendee_group_resource_role_assignments }}"
+
+        - name: Syncronize the CDP Users and Groups to {{ tf_cdp_outputs.cdp_environment_name.value }}
+          cloudera.cloud.env_user_sync:
+            name: "{{ tf_cdp_outputs.cdp_environment_name.value }}"

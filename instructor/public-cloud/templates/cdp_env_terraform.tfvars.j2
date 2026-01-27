@@ -1,0 +1,37 @@
+# ------- Global settings -------
+env_prefix = "{{ prefix }}"
+
+# ------- Cloud Settings -------
+aws_region = "{{ region }}"
+
+# ------- CDP Environment Deployment -------
+deployment_template = "{{ deployment_template }}"
+
+datalake_scale = "{{ datalake_scale }}"
+
+cdp_groups = [
+    {
+    name = "{{ cdp_instructor_group.name }}"
+    create_group = {{ cdp_instructor_group.create_group | lower }}
+    add_id_broker_mappings = {{ cdp_instructor_group.add_to_idbroker | lower }}
+    sync_membership_on_user_login = {{ cdp_instructor_group.sync_on_login | lower }}
+    },
+    {
+    name = "{{ cdp_attendee_group.name }}"
+    create_group = {{ cdp_attendee_group.create_group | lower }}
+    add_id_broker_mappings = {{ cdp_attendee_group.add_to_idbroker | lower }}
+    sync_membership_on_user_login = {{ cdp_instructor_group.sync_on_login | lower }}
+    }
+]
+
+# ------- Resource Tagging -------
+env_tags = {{ tags | to_json }}
+
+# ------- Network Settings -------
+ingress_extra_cidrs_and_ports = {
+ cidrs = {{ ingress_extra_cidrs_and_ports['cidrs'] | to_json }},
+ ports = {{ ingress_extra_cidrs_and_ports['ports'] }}
+}
+
+# ------- Extra S3 buckets -------
+# extra_s3_buckets = {{ (extra_s3_buckets | default([])) | to_json }}

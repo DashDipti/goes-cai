@@ -1,0 +1,88 @@
+---
+
+- name: Set up CDP Public Cloud DataHubs and Data Services
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - env
+  tasks:
+
+############# Environment Discovery & Validation #############
+        
+    - name: Gather details about the CDP environment
+      tags:
+        - always
+      block:
+        - name: Set environment name from either pre-existing environment or Terraform outputs
+          ansible.builtin.set_fact:
+            cdp_environment_name: "{{ cdp_env if cdp_env is defined else lookup('cloud.terraform.tf_output', 'cdp_environment_name', project_path=[playbook_dir,'tf-cdp-env'] | path_join) }}"
+
+        - name: Query for the CDP Public Cloud Environment
+          cloudera.cloud.env_info:
+            name: "{{ cdp_environment_name }}"
+          register: __env
+
+        - name: Extract details about the environment
+          ansible.builtin.set_fact:
+            __env_details: "{{ env_details }}"
+          vars:
+            network_details: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).network | default([]) }}"
+            cloud_platform: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).cloudPlatform }}"
+            env_details: 
+              env_name: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).environmentName }}"
+              crn: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).crn }}"
+              status: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).status }}"
+              cloud_platform: "{{ cloud_platform }}"
+              region: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).region }}"
+              credential_name: "{{ (__env.environments |  selectattr('environmentName', 'contains', cdp_environment_name)|first).credentialName| default(omit)}}"
+              # network id key is cloud platform dependent
+              network_id: "{{ network_details[cloud_platform | lower] | default(None) | community.general.json_query('networkId||vpcId||networkName') or omit }}"
+              subnets: "{{ network_details | community.general.json_query('subnetIds') or omit }}"
+
+
+############# Enable Data Services as required #############
+
+# ** CML - Start
+
+    - name: Start enable of up CML workspaces
+      when: 
+        - enable_cml
+        - ml is defined
+      cloudera.cloud.ml:
+        state: present
+        name: "{{ ml.workspace.name }}"
+        env: "{{ __env_details.env_name }}"
+        governance: "{{ ml.workspace.governance }}"
+        metrics: "{{ ml.workspace.metrics }}"
+        monitoring: "{{ ml.workspace.monitoring }}"
+        private_cluster: "{{ ml.workspace.private_cluster | default(omit) }}"
+        nfs:  "{{ azure_nfs_file_share_url if __env_details.cloud_platform == 'AZURE' else omit  }}"
+        nfs_version: "{{ '4.1' if __env_details.cloud_platform == 'AZURE' else omit  }}"
+        public_loadbalancer: "{{ ml.workspace.public_loadbalancer | default(omit) }}"
+        k8s_request:
+          environmentName: "{{ __env_details.env_name }}"
+          instanceGroups: "{{ ml.workspace.instance_groups }}"
+        debug: true
+      async: 3600 # 1 hour timeout
+      poll: 0
+      register: __cml_async
+      tags:
+        - cml
+
+
+############# Wait for Data Services setup to complete #############
+
+# ** CML - Wait
+    - name: Monitor the set up of the CML
+      when:
+        - enable_cml
+        - __cml_async is defined
+      ansible.builtin.async_status:
+        jid: "{{ __cml_async.ansible_job_id }}"
+      register: __setups_async
+      until: __setups_async.finished
+      retries: 120
+      delay: 30
+      tags:
+        - cml

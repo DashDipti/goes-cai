@@ -1,0 +1,83 @@
+---
+
+- name: Remove Hands on Lab Assets
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags:
+    - env
+  tasks:
+
+############# Environment Discovery & Validation #############
+        
+    - name: Gather details about the CDP environment
+      tags:
+        - always
+      block:
+        # Find details about the environment
+        - name: Set environment name from either pre-existing environment or Terraform outputs
+          ansible.builtin.set_fact:
+            cdp_environment_name: "{{ cdp_env if cdp_env is defined else lookup('cloud.terraform.tf_output', 'cdp_environment_name', project_path=[playbook_dir,'tf-cdp-env'] | path_join) }}"
+
+        - name: Query for the CDP Public Cloud Environment
+          cloudera.cloud.env_info:
+            name: "{{ cdp_environment_name }}"
+          register: __env
+
+        - name: Verify that environment is in running state
+          ansible.builtin.assert:
+            that:
+              - __env.environments | length == 1
+              - __env.environments[0].status == 'AVAILABLE'
+            fail_msg: "Environment '{{ cdp_environment_name }}' not found or not in Available state"
+
+        # Find details about datalake
+        - name: Query for the CDP Public Cloud Datalake
+          cloudera.cloud.datalake_info:
+            environment: "{{ cdp_environment_name }}"
+          register: __dl
+
+        - name: Assert existence of the CDP Public Cloud Datalake
+          ansible.builtin.assert:
+            that:
+              - __dl.datalakes | length == 1
+              - __dl.datalakes[0].status == "RUNNING"
+            fail_msg: "CDP Public Cloud target Datalake either is missing or invalid: {{ cdp_environment_name }}"
+            quiet: yes        
+
+############# Cloudera AI Cleanup #############
+
+    - name: Cloudera AI Configuration
+      tags:
+        - cai
+      block:
+
+        # Find details about CAI service
+        - name: Gather details for the CAI Workspace
+          cloudera.cloud.ml_info:
+            name: "{{ ml.workspace.name }}"
+            env: "{{ cdp_environment_name }}"
+          register: __cml_ds
+
+        - name: Confirm the status of the CAI Workspace
+          ansible.builtin.assert:
+            that:
+              - __cml_ds.workspaces | length == 1
+              - __cml_ds.workspaces | map(attribute='instanceStatus') | first in ['installation:finished', 'modify:finished']
+            fail_msg: "CAI Workspace, {{ ml.workspace.name }}, not enabled for Environment, {{ cdp_environment_name }}"
+            quiet: yes
+
+        - name: Set fact for the CAI Workspace API endpoint
+          ansible.builtin.set_fact:
+            cml_workspace_api: "{{ __cml_ds.workspaces | map(attribute='instanceUrl') | first }}"
+
+        - name: Remove the CAI projects
+          cloudera.runtime.ml_project:
+            endpoint: "{{ cml_workspace_api }}"
+            api_key: "{{ ml_workspace_api_key }}"
+            name: "{{ ml.project.project_name_prefix +'-%03d' | format(__cai_proj_item + 1) }}"
+            state: absent
+          register: __cml_project
+          loop_control:
+            loop_var: __cai_proj_item     
+          loop: "{{ range(0, ml.project.num_projects | int) }}"

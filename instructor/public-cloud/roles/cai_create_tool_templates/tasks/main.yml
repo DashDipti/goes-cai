@@ -1,0 +1,127 @@
+# Copyright 2025 Cloudera, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+
+# Retrieve details of the Cloudera AI project
+- name: Get details on {{ cai_project }}
+  cloudera.runtime.ml_project_info:
+    endpoint: "{{ cai_workspace_api }}"
+    name: "{{ cai_project }}"
+    api_key: "{{ cai_workbench_api_key }}"
+  register: __cai_project_details
+
+# Lookup AI agent in project
+- name: Check for existing AI Studios
+  ansible.builtin.uri:
+    url: "{{ cai_workspace_api }}/api/v1/projects/{{ cai_user }}/{{ cai_project }}/composable-accelerators"
+    method: GET
+    user: "{{ cai_workbench_api_key }}"
+    password: ''
+    force_basic_auth: yes
+  register: __studio_info
+
+- name: Extract existing AI Studio details
+  ansible.builtin.set_fact:
+    __existing_studio: "{{ (__studio_info.json | selectattr('slug', 'match', cai_ai_studio_details['slug']) | first) | default([]) }}"
+
+# Assert that the AI Studio exists
+- name: Assert that the AI Studio exists and is ready
+  ansible.builtin.assert:
+    that:
+      - __existing_studio | length > 0
+      - __existing_studio.status in ['running', 'success']
+    fail_msg: "AI Studio '{{ cai_ai_studio_details.slug }}' does not exist and no details provided to create it"
+    success_msg: "AI Studio '{{ cai_ai_studio_details.slug }}' exists or will be created"
+
+# Get APP_SUBDOMAIN
+- name: Get all Applications within the Project
+  cloudera.runtime.ml_project_application_info:
+    endpoint: "{{ cai_workspace_api }}"
+    api_key: "{{ cai_workbench_api_key }}"
+    project_name: "{{ cai_project }}"
+  register: __ml_app_info
+
+- name: Find the Application Details for the Studio
+  ansible.builtin.set_fact:
+    __studio_application_subdomain: "{{ (__ml_app_info.applications | selectattr('name', 'equalto', cai_ai_studio_details['application_name']) | map(attribute='subdomain') | first) }}"
+
+# Get Current Tool Templates
+- name: List Current Tool Templates
+  ansible.builtin.uri:
+    url: "https://{{ __studio_application_subdomain }}.{{ cai_workspace_api | replace('https://', '') }}/api/grpc/listToolTemplates"
+    method: POST
+    headers:
+      Authorization: Bearer {{ cai_workbench_api_key }}
+      content-type: application/json
+    body_format: json
+    body: {}
+  register: __tool_template_info
+
+# Create Tool Template if they don't already exist
+- name: Create Tool Templates for AI Studio
+  when: "__tool_template_info.json.templates | selectattr('name', 'equalto', tool_template_item.template_name) | list | length == 0"
+  ansible.builtin.uri:
+    url: "https://{{ __studio_application_subdomain }}.{{ cai_workspace_api | replace('https://', '') }}/api/grpc/addToolTemplate"
+    method: POST
+    headers:
+      Authorization: Bearer {{ cai_workbench_api_key }}
+      content-type: application/json
+    body_format: json
+    body:
+      tool_template_name: "{{ tool_template_item.template_name }}"
+      tmp_tool_image_path: "{{ tool_template_item.tool_image_path | default(omit) }}"
+      workflow_template_id: "{{ tool_template_item.workflow_template_id | default(omit) }}"
+  loop_control:
+    loop_var: tool_template_item
+  loop: "{{ tool_templates }}"
+  register: __tool_templates_register  
+
+- name: List Current Tool Templates
+  ansible.builtin.uri:
+    url: "https://{{ __studio_application_subdomain }}.{{ cai_workspace_api | replace('https://', '') }}/api/grpc/listToolTemplates"
+    method: POST
+    headers:
+      Authorization: Bearer {{ cai_workbench_api_key }}
+      content-type: application/json
+    body_format: json
+    body: {}
+  register: __tool_template_info
+
+- name: Retrieve Tool Templates again
+  ansible.builtin.uri:
+    url: "https://{{ __studio_application_subdomain }}.{{ cai_workspace_api | replace('https://', '') }}/api/grpc/listToolTemplates"
+    method: POST
+    headers:
+      Authorization: Bearer {{ cai_workbench_api_key }}
+      content-type: application/json
+    body_format: json
+    body: {}
+  register: __tool_template_info
+
+- name: Find the Path for the Tool Template using
+  debug:
+    msg:
+      - "PATH is {{ cai_ai_studio_details.slug + '/' + (__tool_template_info.json.templates | selectattr('name', 'equalto', tool_template_item.template_name) | map(attribute='source_folder_path') | first) + '/tool.py' }}"
+      - "PROJECT is {{ __cai_project_details.projects[0].id }}"
+  loop_control:
+    loop_var: tool_template_item
+  loop: "{{ tool_templates }}"
+
+- name: Upload the Tool Template file
+  ansible.builtin.command: 'curl -X PUT -H "Authorization: Bearer {{ ml_workspace_api_key }}" -H "Content-Type: multipart/form-data" -F "{{ tool_template_file }}=@{{ tool_template_item.file }}" {{ cml_workspace_api }}/api/v2/projects/{{ __cai_project_details.projects[0].id }}/files'
+  loop_control:
+    loop_var: tool_template_item
+  loop: "{{ tool_templates }}"
+  vars:
+    tool_template_file: "{{ cai_ai_studio_details.slug + '/' + (__tool_template_info.json.templates | selectattr('name', 'equalto', tool_template_item.template_name) | map(attribute='source_folder_path') | first) + '/tool.py' }}"
