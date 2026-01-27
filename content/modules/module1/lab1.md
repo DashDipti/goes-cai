@@ -1,5 +1,5 @@
 # Lab 1: Getting Setup for Workshop
-Dipti 123
+Dipti 123121
 ## Workshop Setup :
 
 | Cloudera Tenant Name     | Workspace Name | Project Names  |
