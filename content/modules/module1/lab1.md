@@ -1,10 +1,10 @@
 # Lab 1: Getting Setup for Workshop
-Dipti 123121
+
 ## Workshop Setup :
 
 | Cloudera Tenant Name     | Workspace Name | Project Names  |
 |--------------------------|----------------|-------------------------|
-| se-xxx(will be provided) | aistudio-hol-ml| Airaware-Team-XX        |
+| pse-emea-cdp-env         |   emeapse        | Airaware-Team-XX        |
 
 Your specific Team name will be provided by your instructor
 
