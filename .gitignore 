@@ -1,0 +1,44 @@
+instructor/mkdocs/build/*
+# Definition artifacts
+**/.kubeconfig
+**/deployment_info.yml
+**/example.ico
+
+# Local collections
+collections/*
+!collections/requirements.yml
+
+# Local roles
+roles/*
+!roles/requirements.yml
+
+# Local .terraform directories
+**/.terraform/*
+.terraform.lock.hcl
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# tfvars
+**/*.tfvars
+
+# Terraform remote state files
+**/backend_state.tf
+
+# Static inventory files
+**/inventory_static*
+
+# ansible-runner artifact directories
+**/artifacts
+**/runs
+
+# Remove project configuration
+config.yml
+
+# Ansible Navigator assets
+**/ansible-navigator.log
+**/runs
+**/context
+ansible-env/*
+**/.DS_Store
