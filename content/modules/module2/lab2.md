@@ -9,9 +9,10 @@
 
 Now let us define the tasks for our Agents to work on.
 
-* Start with the Tasks Screen shown below
+* Start with the Tasks Screen shown below and click on `Add Task`. Use the values from the table to fill in details.
 
-![ai_studio_edit_tasks](./ai_studio_edit_tasks.png)
+![ags_workflow_tasks_1](./ags_workflow_tasks_1.png)
+
 
 | Description | Agent | Expected Output |
 | :---- | :---- | :---- |
@@ -21,21 +22,36 @@ Now let us define the tasks for our Agents to work on.
 | Fetch air quality data using the air_quality_tool for the eacj location: from start_date to end_date ONLY using the bounding boxes for each location. If specific parameters are provided by the aq_parameters attribute, focus on those. Return the data as a pandas DataFrame. | air_quality_retriever | A pandas DataFrame containing the air quality data for the specified locations, dates, and parameters. |
 | Analyze the provided air quality data (including parameters like pm10, value, units, date, and location) for the specified locations and dates. Consider the historical weather information (temperature, wind, precipitation, humidity) for the same period. Identify any trends in air quality, calculate average values where relevant, and discuss any potential correlations or influences of weather conditions on the air quality. Provide a detailed report summarizing the air quality situation for each location, including the key findings and any notable observations related to weather patterns. Include facts and observations to compare the provided locations, as well as your own reliable knowledge base sources to comment on the overall Airquality | air_quality_analyst | A comprehensive report detailing the air quality analysis for each location, including trends, averages, and a discussion of potential relationships with the historical weather conditions. Include a Summary at the top and Conclusion at the end |
 
-* Click on `Save and Next` to go to the Configurations Page.  
+* At the end of creating the task for `input_parser_agent` it should appear as following.
 
-* Set the Configurations to `1000` New Tokens as below.
+![ags_workflow_tasks_2](./ags_workflow_tasks_2.png)
 
-![ai_studio_workflow_config](./ai_studio_workflow_config.png)
+* Keep creating the remaining tasks. At the end of it there should be 5 tasks as shown below. 
 
-* Let us now test the workflow. With the following user_input
+![ags_workflow_tasks_3](./ags_workflow_tasks_3.png)
+![ags_workflow_tasks_4](./ags_workflow_tasks_4.png)
+
+* Click `Save & Next`. to go to the Configurations Page.  
+
+* Set the Configurations to `1000` New Tokens as below. Click `Save & Next`.
+
+![ags_workflow_configure](./ags_workflow_configure.png) 
+
+* Let us now test the workflow. After entering the following `user_input` click on `Run Workflow`.
 
     ```
     Can you provide an air quality report for Sydney, Australia  between 01.May.2025 to 03.May.2025 focussing on pm25 parameter
     ```
 
-* As you can see the LLM is now hallucinating and generating data for New York and Los Angeles in Oct 2023 etc.
+![ags_workflow_test_1](./ags_workflow_test_1.png)
 
-![ai_studio_workflow_test_hallucinating](./ai_studio_workflow_test_hallucinating.png)
+* Observer the results now.
+
+![ags_workflow_test_2](./ags_workflow_test_2.png)
+
+* Click on `Save as Template`.
+
+![ags_workflow_deploy](./ags_workflow_deploy.png)
 
 !!! info
     While we have set up Agents and Tasks, the default LLM lacks the ability for us to build a **Trustworthy Investigative system**.

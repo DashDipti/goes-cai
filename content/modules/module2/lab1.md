@@ -13,30 +13,28 @@ In this Lab we will use Agent Studio to create the same Air quality Investigator
 !!! warning "Important"
     Please ensure you use `aistudio-llm-model` as your LLM when creating agents
 
-* Click on Agent Studio from the AI Studios Menu item on CAI Left Menu. You should see the Landing Page below.
+* Click on `All Projects` from the drop down and then click on `Aramco Agent Studio Project`
 
-![agent_studio_ai_studio](./agent_studio_ai_studio.png)
+* Once, inside the project make sure that you click on `Agent Studio` as shown in the screenshot.  It will open up Agent Studio. Click on `Get Started`. 
 
-* Click on Get Started Button to come to the Home Page for Agent Studio.
+![agent_studio_project](./agent_studio_project.png)
+![ags_getstarted](./ags_getstarted.png)
 
-![ai_studio_getting_started](./ai_studio_getting_started.png)
+* Click on `Create Workflow` button to launch a Workflow Template wizard.
 
-* Click on `Create` button to launch a Workflow Template wizard.
+![ags_create_workflow](./ags_create_workflow.png)
 
-* Create a New template and give a name `Air Aware - Team XX` ( use the Name of your Team)
+* Create a New template and give a name `Air Aware - Team XX` (use the Name of your Team). Click on `Create Workflow`.
 
-
-![ai_studio_template](./ai_studio_template.png)
-
-* Click on `Create Workflow` after entering the name.
+![ags_workflow_name](./ags_workflow_name.png)
 
 * In the next screen , ensure "Conversational" and "Manager Agent" are disabled. We will discuss what these settings mean.
 
-![ai_studio_cabability](./ai_studio_cabability.png)
+![ags_workflow_agents_1](./ags_workflow_agents_1.png)
 
-* Click on Create or Edit Agents using the template here. We will be creating a total of 5 Agents using this template
+* Click on `Create or Edit Agents` using the template here. We will be creating a total of 5 Agents using this template
 
-![ai_studio_create_agent](./ai_studio_create_agent.png)
+![ags_workflow_agents_2](./ags_workflow_agents_2.png)
 
 * **Agents Definition:** Use the cell values below against to define each agent. Copy the values in each cell against each type of agent in the code.
 
@@ -51,15 +49,22 @@ In this Lab we will use Agent Studio to create the same Air quality Investigator
 | air_quality_retriever | Air Quality Data Retriever | Fetch air quality data from OpenAQ for the specified locations and date range. | Specialized in accessing and retrieving air quality data. |
 | air_quality_analyst | Air Quality Analyst | Analyze air quality data and historical weather data to generate a report. | Experienced in air quality analysis and meteorological research.  |
 
+* Fill in the values for the `input_parser_agent` as shown below.
+
+![ags_workflow_agents_3](./ags_workflow_agents_3.png)
+
+* After you create the `input_parser_agent` create the remaing ones. Once created it will appear as shown below.
+
+![ags_workflow_agents_4](./ags_workflow_agents_4.png)
+
+* Keep on adding the other agents and make sure you have added all the 5 agents.
+
+![ags_workflow_agents_5](./ags_workflow_agents_5.png)
+![ags_workflow_agents_6](./ags_workflow_agents_6.png)
+
+
 * We will not use any Tools at this point, we will add the tools later. Also we will not use any MCP Server at this point  
 
-* Create the 5 Agents based on the data above.
-
-* You can experiment with "Generate with AI" option to generate your prompt.
-
-* After this you should be able to see 5 Agents as below.
-
-![ai_studio_defined_agents](./ai_studio_5_Agents_workflow.png)
 
 ## Learning Notes
 - [x] Create workflows in Agent Studio
