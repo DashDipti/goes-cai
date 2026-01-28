@@ -81,14 +81,8 @@ Your mission is to develop a reliable system for Environmentalists to gather and
 
 * Go to Cloudera AI Project in the Workshop Tenant and use the Project for your Team . It should be named `Airaware - Team XX`
 * Familiarize yourself with the files and folder structure.
-!!! note "IMPORTANT"
-    In the Project Settings, create an Environment Variable as below. Use the OpenAQ API Key that you generated in Prerequisite here <br>
-        **Key**: `OPENAQ_API_KEY`   **Value**: `<ENTER_OPENAQ_API_KEY>`<br>
 
-![openaq_key_environment_variable](./openaq_key_environment_variable.png)
-
-!!! note "Important"
-    Create/ Restart a new Cloudera AI Session for the changes to be propogated
+![familiarize.png](./familiarize.png)
 
 * The instructor will now open the `main_v1.py` file and walk you  through the structure.
 
@@ -98,6 +92,9 @@ Your mission is to develop a reliable system for Environmentalists to gather and
 
 You will define the Agents of the workflow here.
 
+* Look at the following piece of code as you will be altering it in this part.
+
+![define_agents.png](./define_agents.png)
 
 !!! NOTE
     Copy the values in FIRST TWO ROWS ONLY ( i.e. the input_parser_agent and the bounding_box_retriever agent ) to themarked area in main_v1.py. Use comments called LAB to identify the area of copying. The last 3 agents  are prepopulated for you in the code
@@ -111,9 +108,16 @@ You will define the Agents of the workflow here.
 | air_quality_retriever | Air Quality Data Retriever | Fetch air quality data from OpenAQ for the specified locations and date range. | Specialized in accessing and retrieving air quality data. | air_quality_tool() |
 | air_quality_analyst | Air Quality Analyst | Analyze air quality data and historical weather data to generate a report. | Experienced in air quality analysis and meteorological research.  |  |
 
+* After editing the code it should look something like below.
+![define_agents_finish.png](./define_agents_finish.png)
+
 ##### Define Tasks
 
 You will define the tasks that the agents will execute. Copy the FIRST TWO ROWS values in the Tasks area of the code. The last 3 Tasks have already been populated for you.  
+
+* Now make similar changes as above but for the tasks piece of the code. After altering the code it should look like this.
+
+![define_tasks.png](./define_tasks.png)
 
 !!! NOTE
     Bring your attention to the imputation of variables in the tasks. E.g. user_input  hard coded but passed between tasks
@@ -125,6 +129,9 @@ You will define the tasks that the agents will execute. Copy the FIRST TWO ROWS 
 | get_weather_data_task | For each of the following locations, use the bounding boxes (south, west, north, east), and the start_date and end_date in the context,  to query the weather tool to find a concise summary of relevant historical weather conditions between provided  start_date and end_date. Focus on key weather aspects that might influence air quality (e.g., temperature, wind, precipitation). | weather_data_integrator | A dictionary or list containing aggregate of historical weather conditions for each specified location. |
 | get_air_quality_data_task | Fetch air quality data using the air_quality_tool for the eacj location: from start_date to end_date ONLY using the bounding boxes for each location. If specific parameters are provided by the aq_parameters attribute, focus on those. Return the data as a pandas DataFrame. | air_quality_retriever | A pandas DataFrame containing the air quality data for the specified locations, dates, and parameters. |
 | analysis_task | Analyze the provided air quality data (including parameters like pm10, value, units, date, and location) for the specified locations and dates. Consider the historical weather information (temperature, wind, precipitation, humidity) for the same period. Identify any trends in air quality, calculate average values where relevant, and discuss any potential correlations or influences of weather conditions on the air quality. Provide a detailed report summarizing the air quality situation for each location, including the key findings and any notable observations related to weather patterns. Include facts and observations to compare the provided locations, as well as your own reliable knowledge base sources to comment on the overall Airquality | air_quality_analyst | A comprehensive report detailing the air quality analysis for each location, including trends, averages, and a discussion of potential relationships with the historical weather conditions. Include a Summary at the top and Conclusion at the end |
+
+* After editing the code make sure you save the code by clicking `File` -> `Save`
+![define_tasks_finish.png](./define_tasks_finish.png)
 
 ##### Define Tools
 
@@ -145,11 +152,29 @@ We will use the following tools for our workflow to access data across different
 ##### Executing your Multi Agent Workflow
 
 You can execute your multi agent workflow by launching a Terminal and executing the following command.
+* Open the terminal as shown below and then copy pasting the command below.
+
+![execute_multiagent_workflow.png](./execute_multiagent_workflow.png)
 
 ```bash
 python3 main_v1.py \
 --user-input  "Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter"
 ```
+
+* Following are a series of screenshot for what you should be expecting. We will review the outputs in the next section.
+
+![results_1.png](./results_1.png)
+![results_2.png](./results_2.png)
+![results_3.png](./results_3.png)
+![results_4.png](./results_4.png)
+![results_5.png](./results_5.png)
+![results_6.png](./results_6.png)
+![results_7.png](./results_7.png)
+![results_8.png](./results_8.png)
+![results_9.png](./results_9.png)
+![results_10.png](./results_10.png)
+
+
 
 ### Review output
 
