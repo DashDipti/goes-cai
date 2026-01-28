@@ -57,7 +57,7 @@ In this Lab we will use Agent Studio to create the same Air quality Investigator
 
 ![ags_workflow_agents_4](./ags_workflow_agents_4.png)
 
-* Keep on adding the other agents and make sure you have added all the 5 agents.
+* Keep on adding the other agents and make sure you have added all the 5 agents. Click on `Save & Next`.
 
 ![ags_workflow_agents_5](./ags_workflow_agents_5.png)
 ![ags_workflow_agents_6](./ags_workflow_agents_6.png)
