@@ -174,8 +174,6 @@ python3 main_v1.py \
 ![results_9.png](./results_9.png)
 ![results_10.png](./results_10.png)
 
-
-
 ### Review output
 
 Review the output of the workflow and observe the output in each of the Tasks of the Agent in **Final Answer in your**
