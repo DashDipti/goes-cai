@@ -51,27 +51,24 @@ Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025
 
 * You may need to open the workflow again and click on the `Actions` Menu item to deploy.
 
-![ai_studio_workflow_actions_deploy](./ai_studio_workflow_actions_deploy.png)
+![workflow_tool_17](./workflow_tool_17.png)
 
-* Once deployed successfully, you should be able to see the workflow in the main Deployed Workflows section as below.
+* Once deployed successfully, you should be able to see the workflow in the main Deployed Workflows section as below and it should be in running state. Click on the application link as shown below.
 
-![ai_studio_deployed_workflows](./ai_studio_deployed_workflows.png)
+![workflow_tool_18](./workflow_tool_18.png)
 
-* Now let us run this Deployed workflow just as a normal user would . Click on the application link as shown below
-
-![ai_studio_run_deployed_workflow](./ai_studio_run_deployed_workflow.png)
-
-* This should open a UI Page below, let us test with user_input comparing Air Quality of 3 cities by entering the following input
+* This should open a UI Page below, let us test with user_input comparing Air Quality of 3 days for a different city by entering the following input. Click on `Rub Workflow` after entering the `user_input`.
 
 ```text {.prompt-block}
 Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
 ```
 
-![ai_studio_input_deployed_workflow](./ai_studio_input_deployed_workflow.png)
+![workflow_tool_19](./workflow_tool_19.png)
 
 * After a few minutes you should be able to get a complete Air Quality report (partially shown in the screenshot below)
 
-![ai_studio_deployed_workflow_output](./ai_studio_deployed_workflow_output.png)
+![workflow_tool_20](./workflow_tool_20.png)
+![workflow_tool_21](./workflow_tool_21.png)
 
 * Scroll down to download the entire report on your laptop.
 
@@ -82,6 +79,3 @@ Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Ja
 **:rocket: We have now concluded Lab 4 :rocket:**
 
 **:rocket: This concludes our Hands on Workshop :rocket:**
-
-
-
