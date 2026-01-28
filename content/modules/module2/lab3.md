@@ -8,47 +8,48 @@
 
 ## Lab Steps
 
-* Let us start by creating Tools in Tools Catalog.
+* Let us start by creating Tools in Tools Catalog. Click on `Tools Catalog` and then `Create`.
 
-![ai_studio_tools_catalog](./ai_studio_tools_catalog.png)
+![tools](./tools.png)
 
-* Let us create a List of Tools with the name as follows:
-  * Input Parser  `TeamXX` ( use your team name)
+* Enter the tool name and then click `Generate`.
+  * Input Parser  `Input Parser Team XX` (use your team name)
 
 !!! NOTE
     Special characters are not allowed in Tool Name
 
-![ai_studio_create_tool_template](./ai_studio_create_tool_template.png)
+
+![tool_input_parser_1](./tool_input_parser_1.png)
+![tool_input_parser_2](./tool_input_parser_2.png)
 
 * Click on Edit tool file show  
 
-![ai_studio_edit_tool_file](./ai_studio_edit_tool_file.png)
+![tool_input_parser_3](./tool_input_parser_3.png)
+
 
 !!! Danger "IMPORTANT"
     Branch Name:  “LAB” branch and  Folder Name : “agent_tools_cai_studio” for all the tools. 
 
 * Update the Tool Code : 
-    * Goto the Github Location for CAI custom tools [url](https://github.com/SuperEllipse/AirAware/tree/Lab/agent_tools_cai_studio)
+    * Goto the Github Location for CAI custom tools [url](https://github.com/SuperEllipse/AirAware/tree/Lab/agent_tools_cai_studio). Make sure you are on the `Lab` branch as shown below. There should be 4 code files there.
+    ![tool_input_parser_github_4](./tool_input_parser_github_4.png)
     * Copy the input_parser_tool.py code into the tool.py file 
-    * Now you go to the location and update the `input_parser_tool.py` code in Cloudera AI `tool.py`file. 
+    ![tool_input_parser_github_5](./tool_input_parser_github_5.png)
+    * Now you go to the location and update the `input_parser_tool.py` code in Cloudera AI `tool.py`file. Paste the code here and then  `Save` and `Close` the file.
+    ![tool_input_parser_6](./tool_input_parser_6.png)
+    ![tool_input_parser_7](./tool_input_parser_7.png)
+    ![tool_input_parser_8](./tool_input_parser_8.png)
+    ![tool_input_parser_9](./tool_input_parser_9.png)
 
-!!! Danger "Important"
-    Note that the folder to use is  `agent_tools_cai_studio`
-    ![ai_studio_update_input_parser_tool](./branch_and_folder_note.png)
+* Refresh and check that the `input_parser_tool.py` is updated. Finally save the tool clicking on the `Save` button below.
 
+![tool_input_parser_10](./tool_input_parser_10.png)
+![tool_input_parser_11](./tool_input_parser_11.png)
+![tool_input_parser_12](./tool_input_parser_12.png)
 
-
-* Refresh and check that the `input_parser_tool.py` is updated. Finally save the tool clicking on the save button below.
-
-![ai_studio_refresh_input_parser_tool](./ai_studio_refresh_input_parser_tool.png)
-
-* Similarly create the following tool using the same approach update the tool.py to create 3 more tools. Do not forget to add your Team name.
-    * Geocode_Boundingbox Tool
-    * Weather Tool
-    * Air Quality Analysis Tool ( **Note** : You need to update 2 files here, tool.py and requirements.txt, see note below)
 
 !!! danger "Important"
-    For the Air Quality Analysis Tool, we need some additional packags, so please update the requirements.txt with the packages below
+    Using the same method we have created 3 more tools namely - `Geocode Boundingbox Tool`, `Weather Tool`, `Air Quality Analysis Tool` which you will be using in the next steps. For the Air Quality Analysis Tool, we need some additional packages, so we have updated `requirements.txt` corresponding to `Air Quality Analysis Tool` with the packages below as well. This is just FYI.
     ```
     #UPDATE THE requirements.txt with the below
     # https://pip.pypa.io/en/stable/reference/requirements-file-format/
@@ -58,48 +59,44 @@
     ```
 
 
-  
-
 * Confirm in Tools Catalog if the tools that you have created are listed.
 
-* Now let us go back to our workflow and click on "Edit Workflow"
-![edit_workflow](./edit_workflow.png)
+* Now let us go back to our workflow and click on `Air Aware - Team XX` (Your workflow).
 
+![workflow](./workflow.png)
 
+* You might have to then click `Edit & Redeploy`.
 
-* In the Workflow  click on create or edit agents.
+![workflow_edit_1](./workflow_edit_1.png)
 
-![ai_studio_create__or_edit_agent](./ai_studio_create__or_edit_agent.png)
+* In the Workflow click on create or edit agents.
+
+![workflow_edit_2](./workflow_edit_2.png)
 
 * Select the Input_parser_agent and click in the  `Add optional tools` section `Create or Edit Tools`.
 
-![ai_studio_add_optional_tools](./ai_studio_add_optional_tools.png)
+![workflow_tool_1](./workflow_tool_1.png)
 
-* Find your tool name from tool catalog
+* Find your tool name from tool catalog and check if the code is correct or not.
 
-![ai_studio_find_tool_in_catalog](./ai_studio_find_tool_in_catalog.png)
+![workflow_tool_2](./workflow_tool_2.png)
     
 * Click on the `Create Tool from Template` button which adds the tool.
 
-    * You should now be able to save the tool using the `Save Tool` button.
+![workflow_tool_3](./workflow_tool_3.png)
 
-    * You should now be able to see the added tool In the _Optional Tools_ section.
+* Click on `Close` button.
 
-    * Finally you can now save the agent using the `Save Agent` button
+![workflow_tool_4](./workflow_tool_4.png)
 
 * Notice how the agent now has a tool associated with it in the workflow as below  
 
-![ai_studio_input_parser_workflow](./ai_studio_input_parser_workflow.png)
+![workflow_tool_5](./workflow_tool_5.png)
 
-* Follow the same approach to add all the other tools to our agentic workflow i.e.
-    * Geocoding Tool
-    * Weather Tool
-    * Air Quality Analysis Tool  
+* Follow the same approach to add all the other tools (`Geocode Boundingbox Tool`, `Weather Tool`, `Air Quality Analysis Tool`) to our agentic workflow. Finally, your workflow should look like below. Click on `Save & Next` as we move to the next exercise.
 
+![workflow_tool_6](./workflow_tool_6.png)
 
-* Finally your workflow should look like below.
-
-![ai_studio_final_workflow](./ai_studio_final_workflow.png)
 
 ## Learning Notes
 

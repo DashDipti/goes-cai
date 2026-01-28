@@ -5,57 +5,46 @@
 - [ ] In this Lab, we will test our Agentic Workflow, Monitor it and Deploy it as an Application
 
 ## Lab Steps
-* Click on your workflow in edit mode from the home page
-![edit_workflow](./edit_workflow.png)
-* Click on the capability description and add the below text into the text box under Capability guide
+* Continue from the last lab where you were on the step of `Add Tasks` for your workflow named `Air Aware - Team XX`. Click on `Save & Next`
 
-```text {.prompt-block}
-The "Air Aware" workflow is designed to provide a comprehensive analysis of air quality for specified locations over a given date range. It involves a series of specialized agents and tasks that work collaboratively to achieve this goal. The process begins with the retrieval of bounding box coordinates for each location, which are then used to gather historical weather data focusing on factors that influence air quality, such as temperature, wind, and precipitation. Concurrently, air quality data is fetched from OpenAQ, focusing on specified parameters if provided. The collected data is then analyzed to identify trends, calculate averages, and explore potential correlations between weather conditions and air quality. The workflow culminates in a detailed report that summarizes the air quality situation for each location, highlighting key findings and notable observations related to weather patterns.
-
-Input to the tool : 
-Can you provide an air quality report for Sydney  between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
-
-```
-
-![ai_studio_update_capability_guide](./ai_studio_update_capability_guide.png)
-
-* Click on `Save & Next` until you reach the _Configure_ step in the workflow as shown below.
-
-![ai_studio_configure_workflow](./ai_studio_configure_workflow.png)
+![workflow_tool_6a](./workflow_tool_6a.png)
 
 * Enter the API Key you created from the Open AQ website in [Getting Setup for Workshop](../module1/lab1.md) lab. Click `Save & Next`
 
+![workflow_tool_7](./workflow_tool_7.png)
 
-* Test the workflow by adding the following text in `user_input` text box below
+* Test the workflow by adding the following text in `user_input` text box below. Then click `Run Workflow`.
 
 ```text {.prompt-block}
 Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
 ```
 
-![ai_studio_test_workflow](./ai_studio_test_workflow.png)
+![workflow_tool_8](./workflow_tool_8.png)
 
 * Click on the `Monitoring` Icon Tab to monitor your workflow using Phoenix
 
-![ai_studio_monitoring](./ai_studio_monitoring.png)
+![workflow_tool_9](./workflow_tool_9.png)
 
 * You should be able to use Phoenix to monitor your workflow by clicking on the name of your Project as shown below.
 
-![ai_studio_monitoring_project](./ai_studio_monitoring_project.png)
-
-![ai_studio_monitoring_project_summary](./ai_studio_monitoring_project_summary.png)
+![workflow_tool_10](./workflow_tool_10.png)
+![workflow_tool_11](./workflow_tool_11.png)
 
 * Check the workflow for each tool. For example the below shows the workflow for the Input Parser Agent, which has used the tool to parse the user input
 
-![ai_studio_monitoring_trace](./ai_studio_monitoring_trace.png)
+![workflow_tool_12](./workflow_tool_12.png)
 
-*  If the Workflow has executed properly, you should be able to see the output below as a final Air quality report the user is expected to
-get.
+*  If the Workflow has executed properly, you should be able to see the output below as a final Air quality report the user is expected to get. Then click on `Save & Next`
 
-![ai_studio_workflow_final_report](./ai_studio_workflow_final_report.png)
+![workflow_tool_13](./workflow_tool_13.png)
 
-* Click on `Save & Next`, and first save your workflow as a Template and then `Deploy`.
+* First save your workflow as a Template and then `ReDeploy`.
 
-![ai_studio_workflow_deploy](./ai_studio_workflow_deploy.png)
+![workflow_tool_14](./workflow_tool_14.png)
+
+![workflow_tool_15](./workflow_tool_15.png)
+
+![workflow_tool_16](./workflow_tool_16.png)
 
 !!! note 
     It may take between 5-10 minutes to deploy your application
@@ -93,3 +82,6 @@ Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Ja
 **:rocket: We have now concluded Lab 4 :rocket:**
 
 **:rocket: This concludes our Hands on Workshop :rocket:**
+
+
+
