@@ -17,7 +17,7 @@
 
 ## Accessing Cloudera Environment:
 
-- [ ] Login to the environment as guided by the instructor. Use your unique username and password to login and confirm by checking the profile name after you have logged in. Look at the screenshots below.
+- [ ] Click [here](https://pse-emea.clouderapartners.click/realms/master/protocol/saml/clients/cdp-sso) to open a Keycloak login page to get access into the Cloudera environment. Check with the instructor to get access credentials. Use your unique username and password to login and confirm by checking the profile name after you have logged in. Look at the screenshots below. 
 
 ![Keycloak](./keycloak.png)
 
@@ -67,7 +67,7 @@ We will learn to:
 
 ![create_project_projsettings](./create_project_projsettings.png)
 
-* Go to the `Project Settings`, click on  `Advanced Tab` and create an environment variable called `OPENAI_API_KEY` & `OPENAQ_API_KEY`. Provide your OpenAI key as given by instructor and the OpenAQ key that you had created in the earlier step. 
+* Go to the `Project Settings`, click on  `Advanced Tab` and create 2 environment variables namely `OPENAI_API_KEY` & `OPENAQ_API_KEY`. Enter your OpenAI key as given by instructor and the OpenAQ key that you had created in the earlier step. 
 
 ![create_variable](./create_variable.png)
 ![create_var_openapi](./create_var_openapi.png)
@@ -95,7 +95,7 @@ We will learn to:
 ![start_terminal](./start_terminal.png)
 ![pip_install_requirement](./pip_install_requirement.png)
 
-* You'll then wait for approx 15 minutes for this to get completed. Probably, a good time for a coffee break. You should see the following after the packages get successfully installed. Close the terminal.
+* You'll then wait for approx `15 minutes` for this to get completed. Probably, a good time for a coffee break. You should see the following after the packages get successfully installed. Close the terminal.
 
 ![pip_install_requirement_running](./pip_install_requirement_running.png)
 ![pip_install_requirement_complete](./pip_install_requirement_complete.png)

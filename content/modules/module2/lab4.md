@@ -5,11 +5,11 @@
 - [ ] In this Lab, we will test our Agentic Workflow, Monitor it and Deploy it as an Application
 
 ## Lab Steps
-* Continue from the last lab where you were on the step of `Add Tasks` for your workflow named `Air Aware - Team XX`. Click on `Save & Next`
+* Continue from the last lab where you were on the step of `Add Tasks` for your workflow named `Air Aware - Team XX`. Click on `Save & Next`.
 
 ![workflow_tool_6a](./workflow_tool_6a.png)
 
-* Enter the API Key you created from the Open AQ website in [Getting Setup for Workshop](../module1/lab1.md) lab. Click `Save & Next`
+* Enter the API Key you created from the Open AQ website in [Getting Setup for Workshop](../module1/lab1.md) lab. Click `Save & Next`.
 
 ![workflow_tool_7](./workflow_tool_7.png)
 
@@ -21,7 +21,7 @@ Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025
 
 ![workflow_tool_8](./workflow_tool_8.png)
 
-* Click on the `Monitoring` Icon Tab to monitor your workflow using Phoenix
+* Click on the `Monitoring` Icon Tab to monitor your workflow using Phoenix.
 
 ![workflow_tool_9](./workflow_tool_9.png)
 
@@ -38,7 +38,7 @@ Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025
 
 ![workflow_tool_13](./workflow_tool_13.png)
 
-* First save your workflow as a Template and then `ReDeploy`.
+* First save your workflow as a Template and then `Deploy`.
 
 ![workflow_tool_14](./workflow_tool_14.png)
 
@@ -57,7 +57,7 @@ Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025
 
 ![workflow_tool_18](./workflow_tool_18.png)
 
-* This should open a UI Page below, let us test with user_input comparing Air Quality of 3 days for a different city by entering the following input. Click on `Rub Workflow` after entering the `user_input`.
+* This should open a UI Page below, let us test with `user_input` comparing Air Quality of 3 days for a different city by entering the following input. Click on `Rub Workflow` after entering the `user_input`.
 
 ```text {.prompt-block}
 Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter

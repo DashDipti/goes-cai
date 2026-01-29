@@ -31,9 +31,9 @@ Now let us define the tasks for our Agents to work on.
 ![ags_workflow_tasks_3](./ags_workflow_tasks_3.png)
 ![ags_workflow_tasks_4](./ags_workflow_tasks_4.png)
 
-* Click `Save & Next`. to go to the Configurations Page.  
+* Click `Save & Next` to go to the `Configure` step.  
 
-* Set the Configurations to `1000` New Tokens as below. Click `Save & Next`.
+* Set the `Max New Tokens` to `1000` New Tokens as below. Click `Save & Next`.
 
 ![ags_workflow_configure](./ags_workflow_configure.png) 
 

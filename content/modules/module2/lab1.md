@@ -24,15 +24,15 @@ In this Lab we will use Agent Studio to create the same Air quality Investigator
 
 ![ags_create_workflow](./ags_create_workflow.png)
 
-* Create a New template and give a name `Air Aware - Team XX` (use the Name of your Team). Click on `Create Workflow`.
+* Give a name `Air Aware - Team XX` (use the Name of your Team, example `Air Aware - Team 05`). Click on `Create Workflow`.
 
 ![ags_workflow_name](./ags_workflow_name.png)
 
-* In the next screen , ensure "Conversational" and "Manager Agent" are disabled. We will discuss what these settings mean.
+* In the next screen , ensure `Conversational` and `Manager Agent` are disabled. We will discuss what these settings mean.
 
 ![ags_workflow_agents_1](./ags_workflow_agents_1.png)
 
-* Click on `Create or Edit Agents` using the template here. We will be creating a total of 5 Agents using this template
+* Click on `Create or Edit Agents`. We will be creating a total of 5 Agents in this workflow.
 
 ![ags_workflow_agents_2](./ags_workflow_agents_2.png)
 
@@ -57,7 +57,7 @@ In this Lab we will use Agent Studio to create the same Air quality Investigator
 
 ![ags_workflow_agents_4](./ags_workflow_agents_4.png)
 
-* Keep on adding the other agents and make sure you have added all the 5 agents. Click on `Save & Next`.
+* Keep on adding the other agents and make sure you have added all the 5 agents. Click on `Close` and then Click on `Save & Next` before going to the next lab. We will continue from here.
 
 ![ags_workflow_agents_5](./ags_workflow_agents_5.png)
 ![ags_workflow_agents_6](./ags_workflow_agents_6.png)

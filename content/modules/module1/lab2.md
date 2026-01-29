@@ -92,12 +92,12 @@ Your mission is to develop a reliable system for Environmentalists to gather and
 
 You will define the Agents of the workflow here.
 
-* Look at the following piece of code as you will be altering it in this part.
+* Look at the following piece of code in `main_v1.py` file as you will be altering it in this part.
 
 ![define_agents.png](./define_agents.png)
 
 !!! NOTE
-    Copy the values in FIRST TWO ROWS ONLY ( i.e. the input_parser_agent and the bounding_box_retriever agent ) to themarked area in main_v1.py. Use comments called LAB to identify the area of copying. The last 3 agents  are prepopulated for you in the code
+    Copy the values in FIRST TWO ROWS ONLY (i.e. the `input_parser_agent` and the `bounding_box_retriever` agent) to the marked area in `main_v1.py`. Look for comments called LAB to identify the area of copying. The last 3 agents are prepopulated for you in the code.
 
 
 | Agent | Role | Backstory | Goal | Tool Used |
@@ -113,7 +113,7 @@ You will define the Agents of the workflow here.
 
 ##### Define Tasks
 
-You will define the tasks that the agents will execute. Copy the FIRST TWO ROWS values in the Tasks area of the code. The last 3 Tasks have already been populated for you.  
+You will define the tasks that the agents will execute. Copy the `FIRST TWO ROWS` values in the `tasks` area of the code. The last 3 Tasks have already been populated for you.  
 
 * Now make similar changes as above but for the tasks piece of the code. After altering the code it should look like this.
 
@@ -124,7 +124,7 @@ You will define the tasks that the agents will execute. Copy the FIRST TWO ROWS 
 
 | Task Name | Description | Agent | Expected Output |
 | :---- | :---- | :---- | :---- |
-| parse_user_input_task | Parse the user input: {self.user_input}. Extract locations, start date, end date, and air quality parametersusing the InputParserTool. | input_parser_agent | A dictionary containing parsed 'locations', 'start_date', 'end_date', and 'aq_parameters' from the user input.|
+| parse_user_input_task | Parse the user input: {self.user_input}. Extract locations, start date, end date, and air quality parameters using the InputParserTool. | input_parser_agent | A dictionary containing parsed 'locations', 'start_date', 'end_date', and 'aq_parameters' from the user input.|
 | get_bounding_boxes_task | For each of the following locations, use the 'bounding_box_extractor' tool to find their bounding box coordinates. Return the bounding boxes associated with each location. | bounding_box_retriever | A dictionary or list containing the bounding box coordinates (south, west, north, east) for each specified location. |
 | get_weather_data_task | For each of the following locations, use the bounding boxes (south, west, north, east), and the start_date and end_date in the context,  to query the weather tool to find a concise summary of relevant historical weather conditions between provided  start_date and end_date. Focus on key weather aspects that might influence air quality (e.g., temperature, wind, precipitation). | weather_data_integrator | A dictionary or list containing aggregate of historical weather conditions for each specified location. |
 | get_air_quality_data_task | Fetch air quality data using the air_quality_tool for the eacj location: from start_date to end_date ONLY using the bounding boxes for each location. If specific parameters are provided by the aq_parameters attribute, focus on those. Return the data as a pandas DataFrame. | air_quality_retriever | A pandas DataFrame containing the air quality data for the specified locations, dates, and parameters. |
