@@ -60,7 +60,7 @@ Can you provide an air quality report for AlKhobar, Saudi Arabia  between 01.Jan
 * This should open a UI Page below, let us test with `user_input` comparing Air Quality of 3 days for a different city by entering the following input. Click on `Rub Workflow` after entering the `user_input`.
 
 ```text {.prompt-block}
-Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
+Can you provide an air quality report for AlKhobar between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
 ```
 
 ![workflow_tool_19](./workflow_tool_19.png)
