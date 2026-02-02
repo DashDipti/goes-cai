@@ -152,13 +152,14 @@ We will use the following tools for our workflow to access data across different
 ##### Executing your Multi Agent Workflow
 
 You can execute your multi agent workflow by launching a Terminal and executing the following command.
+
 * Open the terminal as shown below and then copy pasting the command below.
 
 ![execute_multiagent_workflow.png](./execute_multiagent_workflow.png)
 
 ```bash
 python3 main_v1.py \
---user-input  "Can you provide an air quality report for Melbourne between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter"
+--user-input  "Can you provide an air quality report for AlKhobar between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter"
 ```
 
 * Following are a series of screenshot for what you should be expecting. We will review the outputs in the next section.
@@ -202,7 +203,7 @@ Review the output of the workflow and observe the output in each of the Tasks of
 ![airquality_analyst](./airquality_analyst.png)
 
 * Observe how the agents have automatically integrated structured data i.e. Weather and Air quality data from different systems without using any primary keys 
-* Try changing the city to “Singapore” & Dates to 10.07.2025 to 15.07.2025
+* Try changing the city to “Dubai” & Dates to 17.12.2025 to 22.12.2025
 * This concludes Lab 2
 
 ## Learning Notes

@@ -17,7 +17,7 @@
 
 ## Accessing Cloudera Environment:
 
-- [ ] Click [here](https://pse-emea.clouderapartners.click/realms/master/protocol/saml/clients/cdp-sso) to open a Keycloak login page to get access into the Cloudera environment. Check with the instructor to get access credentials. Use your unique username and password to login and confirm by checking the profile name after you have logged in. Look at the screenshots below. 
+- [ ] Click [here](https://tinyurl.com/cloudera-ai-lab) to open a Keycloak login page to get access into the Cloudera environment. Check with the instructor to get access credentials. Use your unique username and password to login and confirm by checking the profile name after you have logged in. Look at the screenshots below. 
 
 ![Keycloak](./keycloak.png)
 

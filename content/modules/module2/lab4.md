@@ -16,7 +16,7 @@
 * Test the workflow by adding the following text in `user_input` text box below. Then click `Run Workflow`.
 
 ```text {.prompt-block}
-Can you provide an air quality report for Sydney, Australia  between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
+Can you provide an air quality report for AlKhobar, Saudi Arabia  between 01.Jan.2025 to 03.Jan.2025 focussing on pm25 parameter
 ```
 
 ![workflow_tool_8](./workflow_tool_8.png)

@@ -10,7 +10,7 @@
 ## Conceptual Walkthrough
 Let us understand how Custom Tools can help us create agents that will perform customized tasks, such as converting Natural Language to Text or performing data transformations
 
-* Your instructor will now facilitate this lab through the presentation, using section [building custom agent tools](https://docs.google.com/presentation/d/1jSKkVN6xjV9blB_2pUYuZwnD1yhOVE9lzcAr-yVV8vE/edit?slide=id.g36b28bd9dbb_0_0#slide=id.g36b28bd9dbb_0_0) presentation.
+* Your instructor will now facilitate this lab through the presentation, using section [building custom agent tools](https://docs.google.com/presentation/d/1RQ9fCRW5LJb6XJXztjSMW9URhvBQbgX7CwLZie3ADKs/edit?slide=id.g369fdf81931_0_14#slide=id.g369fdf81931_0_14) presentation.
 
 
 ## Assignment Objective

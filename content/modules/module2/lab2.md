@@ -40,7 +40,7 @@ Now let us define the tasks for our Agents to work on.
 * Let us now test the workflow. After entering the following `user_input` click on `Run Workflow`.
 
     ```
-    Can you provide an air quality report for Sydney, Australia  between 01.May.2025 to 03.May.2025 focussing on pm25 parameter
+    Can you provide an air quality report for AlKhobar, Saudi Arabia  between 01.May.2025 to 03.May.2025 focussing on pm25 parameter
     ```
 
 ![ags_workflow_test_1](./ags_workflow_test_1.png)
