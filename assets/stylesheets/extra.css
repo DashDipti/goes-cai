@@ -1,0 +1,66 @@
+:root > * {
+
+  /* Primary color shades */
+  --md-primary-fg-color: #ff550D; /* Cloudera Orange  */
+  --md-primary-fg-color--light: #ff8856; /* Lighter Cloudera Orange */
+  --md-primary-fg-color--dark: #305868; 
+  --md-primary-bg-color: #FFFFFF; 
+  --md-primary-bg-color--light: #F3F5F7;
+  --md-text-link-color: #5555F9; /* Blue Nova  */
+  
+  /* Accent color shades */
+  --md-accent-fg-color: #5555F9; /* Blue Nova  */
+  --md-accent-fg-color--transparent: hsla(189, 100%, 37%, 0.1);
+  --md-accent-bg-color: #FFFFFF;
+  --md-accent-bg-color--light: #F3F5F7;
+
+  /* Footer */
+  --md-footer-bg-color: #5555F9; /* Blue Nova  */
+  --md-footer-bg-color--dark: #120046; /* Twilight */
+  --md-footer-fg-color: #CDDBE4;
+  --md-footer-fg-color--light: #F3F5F7;
+  --md-footer-fg-color--lighter: hsla(0, 0%, 100%, 0.3);
+  }
+
+
+/* Reduce top margin for main content */
+.md-main__inner {
+  margin-top: 0.5rem;
+}
+
+/* Footer copyright links */
+.md-copyright__highlight a {
+  color: #5555F9 !important;
+  text-decoration: underline;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.md-copyright__highlight a:hover {
+  opacity: 0.8;
+}
+
+/* Card Grid for 001-automation-bootcamp */
+.md-typeset #sko .grid {
+    grid-gap: .4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(min(100%,20rem),1fr));
+    margin: 1em 0;
+}
+
+.md-typeset .prereq-complete {
+  text-align: center;
+  font-size: 1.1rem;
+  border: .05rem solid var(--md-default-fg-color--lightest);
+  border-radius: .1rem;
+}
+
+.md-typeset .prereq-complete a {
+  padding: 12px 10px;
+  background-color: var(--md-primary-fg-color);
+  color: #fff;
+  border-radius: 5px;
+  transition: background 0.3s ease-in-out;
+}
+.md-typeset .prereq-complete h2 {
+  margin: 0.6em;
+}
