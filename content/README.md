@@ -71,7 +71,7 @@ This hands-on workshop, "Designing Agentic Workflows," focuses on teaching parti
 
 | Item        |                           |
 | ----------- | ------------------------------------ |
-| **Use Case Source code** | [link to GitHub repo](https://github.com/SuperEllipse/AirAware/tree/Lab)  |
+| **Use Case Source code** | [GitHub repo](https://github.com/SuperEllipse/AirAware/tree/Lab)  |
 | **Demo Recording**       | <to be created> |
 | **Demo Video Recording**   | <To be updated soon> |
-| **Feedback / Comments**    | Vish Rajagopalan|
+| **Feedback / Comments**    | Cloudera|

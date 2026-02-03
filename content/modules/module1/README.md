@@ -8,7 +8,7 @@
 
 ## Requirements
 
-- [ ] Access to the Lab Tenant set up with GOES Team
+- [ ] Access to the Lab Tenant set up with Cloudera Team
 
 ## Labs
 

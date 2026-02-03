@@ -1,11 +1,16 @@
 # Workshop Scope
 
-**Time Plan**: Session 1 (90 Minutes) \+ Session 2 (2 Hours) \+ Session 3 (2 Hours) \+ Summary & Next Steps (30 minutes)
+**Time Plan**: Session 0 (30 Minutes) \+ Session 1 (90 Minutes) \+ Session 2 (2 Hours) \+ Session 3 (2 Hours) \+ Summary & Next Steps (30 minutes)
+
+## **Session 0: Cloudera AI/GenAI/Private AI (Presentation)**
+* Introduction to the Cloudera AI 
+* Details on AI Studios
+* Private AI in Cloudera with NVIDIA
 
 ## **Session 1: AI Agents & Agentic Workflows Foundation (Presentation)**
 
 Objective: Build a fundamental understanding of AI Agents, their components, and applications.  
-Duration: 90 Minutes
+Duration: 30 Minutes
 
 ### **1.1 Welcome and Workshop Objectives (15 minutes)**
 
@@ -30,7 +35,7 @@ Duration: 90 Minutes
 
 **Break (30 minutes)**
 
-## **Session 2: Hands-On Lab Part A**
+## **Session 2: Module 1 - Hand code AI Agents (Hands On Lab)**
 
 Objective: Implement a basic AI Agent manually to understand its inner workings.  
 Duration: 2 Hours
@@ -50,7 +55,7 @@ Duration: 2 Hours
   * Build Custom Tools  
   * Test the agent’s behavior with various inputs.
 
-## **Session 3: Hands-On Lab Part B**
+## **Session 3: Module 2 - Designing Multi Agent Workflow on Agent Studio (Hands On Lab)**
 
 Objective: Use Cloudera Agent Studio for building the same AI Agent workflow  
 Duration: 2 Hours
@@ -73,19 +78,24 @@ Duration: 2 Hours
 * Compare manual implementation with Cloudera Agent Studio.  
 * Discuss scalability, ease of maintenance, and extensibility.
 
-## **Session 4: Wrap-Up and Next Steps**
+## **Session 4: Live Demo for Open Data Lakehouse & MCP**
+* Showcase the bronze, silver, gold layers.
+* Showcase streaming, processing and open data lakehouse.
+* Use MCP for Iceberg via Agent Studio to interact with the lakehouse.
+
+## **Session 5: Wrap-Up and Next Steps**
 
 **Duration**: 30 Minutes
 
-### **4.1 Advanced Concepts in Building Agentic Workflows**
+### **5.1 Advanced Concepts in Building Agentic Workflows**
 
 * Pros & Cons to consider e.g. Token Size increases Dramatically  
 * Patterns of Agentic Workflows ( Reflection, Self correction etc.)  
 * Quality of Output based on the LLM Used Debugging & Error handling  
 * Scaling Workflows : Considerations
 
-### **4.2 Key Takeaways (15 minutes)**
+### **5.2 Key Takeaways (15 minutes)**
 
+* Open Discussion
 * Mapping to Industry Use Cases ( applying APIs, synthesizing multiple agent data etc.)  
 * Summarize key lessons from the workshop.  
-* Capstone Project Details
